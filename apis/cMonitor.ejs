@@ -1,6 +1,7 @@
 <script>
   function initialize() {
     checkConnection();
+    plotGraph();
   }
 
   function checkConnection() {
@@ -27,13 +28,112 @@
       }
 
       $.post('/saveconnectiondata', connection, function(response) {
-        document.getElementById('report').innerHTML = 'Last Saved Connection Mode: ' + response.object.mode + '</br>Requested At: ' + response.object.requestedAt + '</br>Created At: ' + response.object.createdAt;
+        document.getElementById('report').innerHTML = 'Last connection state saved at ' + (new Date(parseInt(response.object.createdAt))).toLocaleTimeString() + ' on ' +(new Date(parseInt(response.object.createdAt))).toLocaleDateString() + '. ';
+        
+        // restart the service
+        setTimeout(function() {
+          this.checkConnection();
+        }, 10000);
       });
-
-      // restart the service
-      setTimeout(function() {
-        this.initialize();
-      }, 10000);
     });
+  }
+
+  function plotGraph() {
+    $.get('/loadlast200data', function (res) {
+      if(res.status == 200) {
+
+        var x_data = [];
+        var y_data = [];
+        var max_speed = 0;
+        var data_size = res.data.length;
+        
+        for (var i = 0; i < res.data.length; i++) {
+          if (res.data[i].mode == 'Connected') {
+            var seconds = ((res.data[i].createdAt - res.data[i].requestedAt)/1000);
+            var speed = 0.1 * 8 /seconds;
+            if (speed > max_speed) {
+              max_speed = speed;
+            }
+            y_data.push(speed);
+          }
+          else {
+            y_data.push(0);
+          }
+          x_data.push(res.data[i].requestedAt);
+        }
+
+        var x_sections = 10;
+        var y_min_val = 0;
+        var y_max_val = max_speed - max_speed % 1 + 1;
+        var x_step_size = (data_size/x_sections);
+        var y_step_size = y_max_val / 8;
+
+        var margin = 10;
+        var row_size = 20;
+        var column_size = 20;
+
+        var canvas_div = document.getElementById('canvas_div');
+        if(canvas_div.children.length > 0) {
+          canvas_div.firstChild.remove();
+        }
+        var canvas = document.createElement('canvas');
+        canvas.height = 640;
+        canvas.width = 840;
+        canvas_div.appendChild(canvas);
+
+        var context = canvas.getContext("2d");
+        context.fillStyle = '#000000';
+        
+        var x_scale = (canvas.width - row_size - 2 * margin) / x_sections;
+        var y_scale = (canvas.height - column_size - 2 * margin) / (y_max_val - y_min_val);
+    
+        context.strokeStyle='#44ccaa';
+        context.beginPath();
+
+        for (var i = 1; i <= x_sections; i++) {
+          var x = i * x_scale;
+          if (i * 200 / x_sections > data_size) {
+            break;
+          }
+          console.log(x_data[i * 200 / x_sections - 1])
+          context.fillText((new Date(parseInt(x_data[i * 200 / x_sections - 1]))).toLocaleTimeString(), x - 3 * margin, canvas.height - margin);
+          context.moveTo(x, 0);
+          context.lineTo(x, canvas.height - column_size);
+        }
+
+        var count =  0;
+        for (var scale=y_max_val; scale >= y_min_val; scale = scale - y_step_size) {
+          var y = column_size + (y_scale * count * y_step_size); 
+          var text = scale;
+          if (scale % 1 == 0) {
+            text = scale + ' Mbps'
+          }
+          context.fillText(text, 0, y - margin);
+          context.moveTo(row_size + margin , y - margin);
+          context.lineTo(canvas.width - row_size - margin, y - margin);
+          count++;
+        }
+
+        context.stroke();
+        
+        context.translate(row_size, canvas.height + y_min_val * y_scale);
+        context.scale(1, -1);
+        context.lineWidth = 2;
+	      context.strokeStyle="#009933";
+        context.beginPath();
+        
+        context.moveTo(- column_size, y_data[0] * y_scale + (column_size + margin));
+        for (var i = 1; i < y_data.length; i++) {
+          var x = i * 4;
+          context.lineTo(x - column_size + margin / 4, y_data[i] * y_scale + column_size + margin);
+        }
+        context.stroke();
+      }
+    });
+        
+    // restart the service
+    setTimeout(function() {
+      this.plotGraph();
+    }, 10000);
   }
 </script>

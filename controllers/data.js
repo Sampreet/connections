@@ -27,7 +27,7 @@ module.exports = {
     **/
     saveConnectionData: function(req, res) {
         console.log(new Date().toISOString() + ': ' + '/POST /saveconnectiondata');
-        logger.logInfo(module_name, '/POST /save', req.body);
+        logger.logInfo(module_name, '/POST /saveconnectiondata', req.body);
         if(!req.body || req.body == '') {
             // display the error message template in case of empty query
             var error_info = logger.logError(module_name, 'No Data', 'NOBODY', 'saveConnectionData');
@@ -60,6 +60,39 @@ module.exports = {
                 }
                 var log_info = logger.logInfo(module_name, 'Last Saved Data', req.body);
                 res.send(log_info);
+            });
+        });
+    },
+
+    loadLast200Data: function(req, res) {
+        console.log(new Date().toISOString() + ': ' + '/GET /loadconnectiondata');
+        logger.logInfo(module_name, '/GET /loadconnectiondata');
+
+        // initialize path of log files according to date
+        var now = new Date(),
+            file_name = appendZeros(now.getFullYear()) + appendZeros(now.getMonth()+1) + appendZeros(now.getDate());
+            
+        fs.readFile(data_file_path + '/' + file_name + '.json', 'utf8', function (err, data) {
+            if (err != null && err.code != "ENOENT") {
+                var error_info = logger.logError(module_name, 'Could not Read File', err.code, err);
+                return res.send(error_info);
+            }
+            if (data != null && data != '') {
+                try{
+                    json_data = JSON.parse(data);
+                }
+                catch (err) {
+                    var error_info = logger.logError(module_name, 'Improper Data Format', err.code, err);
+                    return res.send(error_info);
+                }
+            }
+            var len = json_data.length;
+            if(len > 200) {
+                json_data.splice(0, len-200);
+            }
+            res.send({
+                data: json_data,
+                status: 200
             });
         });
     }
