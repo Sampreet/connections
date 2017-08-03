@@ -1,0 +1,33 @@
+# Logs
+logs
+*.log
+
+# Runtime Data
+pids
+*.pid
+*.seed
+
+# Local Temporary Folders
+temp
+
+# Public Data Files
+data
+
+# Local Config Files
+Config
+.env
+
+# Coverage Storage
+lib-cov
+coverage
+
+# Compiled Binar Addons
+build/Release
+
+# Dependency Directories
+node_modules
+jspm_packages
+
+# Cache Directories
+.npm
+.node_repl_history

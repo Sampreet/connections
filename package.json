@@ -1,0 +1,20 @@
+{
+  "name": "connections",
+  "version": "1.0.0",
+  "description": "Your personal connection analyzer.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node App.js",
+    "test": "node test/text.js"
+  },
+  "author": "Sampreet Kalita",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "dotenv": "^4.0.0",
+    "ejs": "^2.5.6",
+    "express": "^4.15.3",
+    "request": "^2.81.0",
+    "winston": "^2.3.1"
+  }
+}

@@ -1,0 +1,39 @@
+<script>
+  function initialize() {
+    checkConnection();
+  }
+
+  function checkConnection() {
+    var now = new Date();
+    var requestedAt = now.getTime();
+    // get the connection status
+    $.get('/checkconnection', function (res) {
+      var connection = {};
+      connection.requestedAt = requestedAt;
+      connection.status = res.status;
+      connection.mode = res.message;
+
+      if(res.status == 200) {
+        connection.code = res.object;
+        document.getElementById('update_label').innerHTML = res.message;
+        document.getElementById('update_info').innerHTML = 'Status Code: ' + res.object;
+      }
+      else {
+
+        connection.code = res.type;
+        connection.caller = res.object;
+        document.getElementById('update_label').innerHTML = res.message;
+        document.getElementById('update_info').innerHTML = 'Error Code: ' + res.type + '</br>Caller: ' + res.object;
+      }
+
+      $.post('/saveconnectiondata', connection, function(response) {
+        document.getElementById('report').innerHTML = 'Last Saved Connection Mode: ' + response.object.mode + '</br>Requested At: ' + response.object.requestedAt + '</br>Created At: ' + response.object.createdAt;
+      });
+
+      // restart the service
+      setTimeout(function() {
+        this.initialize();
+      }, 10000);
+    });
+  }
+</script>
