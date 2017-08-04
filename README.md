@@ -1,6 +1,6 @@
 # Connections
 
-> Your personal connection analyzer.
+> Your personal connection analyzer for Windows users.
 
 ## Overview of the Application
 
@@ -10,22 +10,34 @@
 
 The **C Monitor** API monitors the network to which the computer is connected and estimates the bandwidth used by it.
 
+![C Monitor Screenshot](https://github.com/Sampreet/connections/tree/master/screenshots/cmonitor.png?raw=true "C Monitor")
+
 ## Development
 
 ### Installing Node.js
 
-#### Windows Installation
-
-The Windows installer files are available for download from the [Node.js website](http://nodejs.org/) and installs Node.js and NPM with just a few clicks.
+The Windows installation files are available for download from the [Node.js website](http://nodejs.org/) and installs Node.js and NPM with just a few clicks.
 
 ### Setting up *Connections*
 
-To install all dependencies, open terminal/cmd and run:
+[Download](https://github.com/Sampreet/connections/archive/master.zip) ```.zip``` and extract the contents to a folder. Press ```Win+R``` and execute ```cmd``` to open ```Command Prompt```. Once opened, navigate to the extracted directory using the following line:
+
+```
+cd <path_to_repository>
+```
+
+Replace ```<path_to_repository>``` with the location of the extracted folder, e.g., ```C:\Users\ExampleUser\Downloads\connections```, if ```ExampleUser``` extracted the downloaded file in the ```Downloads``` folder.
+
+Once inside the folder, run the following command to install all dependencies for the project:
+
 ```
 npm install
 ```
 
-In the ```.env``` file, add the following line:
+### Running *Connections*
+
+In the ```.env``` file available inside the folder, edit the following lines:
+
 ```
 NETWORK_TO_MONITOR=<network_name>
 ```
@@ -33,6 +45,7 @@ NETWORK_TO_MONITOR=<network_name>
 Replace ```<network_name>``` with the name of the network connection you intend to monitor.
 
 To start the application, run:
+
 ```
 npm start
 ```
@@ -51,6 +64,7 @@ Once started, navigate to ```http://127.0.0.1:8000``` to open the required modul
 ├── models/             # sample database models
 ├── logs/               # log files for all modules
 ├── public/             # publicly available files
+├── screenshots/        # application screens for README
 ├── services/           # service modules for notification
 ├── resources/          # configuration files
 ├── test/               # scripts to test the application
