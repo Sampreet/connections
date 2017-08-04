@@ -10,7 +10,7 @@
 
 The **C Monitor** API monitors the network to which the computer is connected and estimates the bandwidth used by it.
 
-![C Monitor Screenshot](https://github.com/Sampreet/connections/tree/master/screenshots/cmonitor.png?raw=true "C Monitor")
+![C Monitor Screenshot](https://raw.githubusercontent.com/Sampreet/connections/master/screenshots/cmonitor.PNG "C Monitor")
 
 ## Development
 
