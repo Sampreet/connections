@@ -15,7 +15,6 @@ data
 
 # Local Config Files
 Config
-.env
 
 # Coverage Storage
 lib-cov

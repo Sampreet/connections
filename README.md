@@ -29,12 +29,19 @@ To install all dependencies, open terminal/cmd and run:
 npm install
 ```
 
+In the ```.env``` file, add the following line:
+```
+NETWORK_TO_MONITOR=<network_name>
+```
+
+Replace ```<network_name>``` with the name of the network connection you intend to monitor.
+
 To start the application, run:
 ```
 npm start
 ```
 
-Once started, navigate to ```http://127.0.0.1:8000/cmonitor``` to open the ```C Monitor``` module in any browser of choice
+Once started, navigate to ```http://127.0.0.1:8000``` to open the required module in any browser of choice.
 
 
 ### Structure of the Repository

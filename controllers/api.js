@@ -38,12 +38,12 @@ module.exports = {
       // request call takes in the url and returns control to callback function with error, response and the html
       request(options, function(error, response, body) {
         if (error) {
-          if(error.code == 'ETIMEDOUT') {
-            var error_info = logger.logError(module_name, 'No Internet', error.code, error.syscall);
+          if(error.code == 'ENOENT') {
+            var error_info = logger.logError(module_name, 'Disconnected', error.code, error.syscall);
             return res.send(error_info);
           } 
           else {
-            var error_info = logger.logError(module_name, 'Disconnected', error.code, error.syscall);
+            var error_info = logger.logError(module_name, 'No Internet', error.code, error.syscall);
             return res.send(error_info);
           }
         }

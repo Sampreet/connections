@@ -27,14 +27,25 @@
         document.getElementById('update_info').innerHTML = 'Error Code: ' + res.type + '</br>Caller: ' + res.object;
       }
 
-      $.post('/saveconnectiondata', connection, function(response) {
-        document.getElementById('report').innerHTML = 'Last connection state saved at ' + (new Date(parseInt(response.object.createdAt))).toLocaleTimeString() + ' on ' +(new Date(parseInt(response.object.createdAt))).toLocaleDateString() + '. ';
-        
-        // restart the service
-        setTimeout(function() {
-          this.checkConnection();
-        }, 10000);
-      });
+      if (connection.mode != 'Disconnected') {
+        $.post('/saveconnectiondata', connection, function(response) {
+          if (response.status == 200) {
+            document.getElementById('report').innerHTML = 'Last connection state saved at ' + (new Date(parseInt(response.object.createdAt))).toLocaleTimeString() + ' on ' +(new Date(parseInt(response.object.createdAt))).toLocaleDateString() + '. ';
+          }
+          else {
+            document.getElementById('report').innerHTML = 'Error: ' + JSON.stringify(response.object);
+          }
+        });
+      }
+      
+      else {
+        document.getElementById('report').innerHTML = 'Disconnected';
+      }
+
+      // restart the service
+      setTimeout(function() {
+        this.checkConnection();
+      }, 10000);
     });
   }
 

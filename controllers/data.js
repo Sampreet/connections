@@ -1,5 +1,6 @@
 // dependency packages
-var fs = require('fs');
+var exec = require('child_process').exec,
+    fs = require('fs');
 
 // local services
 var logger = require('../helpers/logger');
@@ -51,15 +52,41 @@ module.exports = {
                     return res.send(error_info);
                 }
             }
-            req.body.createdAt = now.getTime();
-            json_data.push(req.body);
-            fs.writeFile(data_file_path + '/' + file_name + '.json', JSON.stringify(json_data), 'utf8', function (err) {
-                if (err) {
-                    var error_info = logger.logError(module_name, 'Could not Write to File', err.code, err);
-                    return res.send(error_info);      
+            
+            exec('netsh wlan show interfaces | findstr /r "^....SSID"', function (err, stdout, stderr) {
+                if (!err && (stderr == null || stderr == "")) {
+                    if (stdout.length != 0 && stdout.indexOf(":") != -1) {
+                        var start = stdout.indexOf(":") + 2;
+                        var end = stdout.indexOf('\r');
+                        var ssid = stdout.slice(start, end);
+                        
+                        req.body.network = ssid;
+                        req.body.createdAt = now.getTime();
+                        json_data.push(req.body);
+                        fs.writeFile(data_file_path + '/' + file_name + '.json', JSON.stringify(json_data), 'utf8', function (err) {
+                            if (err) {
+                                var error_info = logger.logError(module_name, 'Could not Write to File', err.code, err);
+                                return res.send(error_info);      
+                            }
+                            var log_info = logger.logInfo(module_name, 'Last Saved Data', req.body);
+                            res.send(log_info);
+                        });
+                    }
+                    else {
+                        var error_info = logger.logError(module_name, 'SSID Empty', 'ENOENT', stdout);
+                        return res.send(error_info);
+                    }
                 }
-                var log_info = logger.logInfo(module_name, 'Last Saved Data', req.body);
-                res.send(log_info);
+                else {
+                    if (err){
+                        var error_info = logger.logError(module_name, 'SSID Exec Error', err.code, err);
+                        return res.send(error_info);
+                    }
+                    else {
+                        var error_info = logger.logError(module_name, 'SSID Exec Error', 'STDERR', stderr);
+                        return res.send(error_info);
+                    }
+                }
             });
         });
     },
@@ -86,7 +113,17 @@ module.exports = {
                     return res.send(error_info);
                 }
             }
-            var len = json_data.length;
+
+            var data = [];
+
+            for (var i = 0; i < json_data.length; i++ ) {
+                if (json_data[i].mode != 'Disconnected' && json_data[i].network.indexOf(process.env.NETWORK_TO_CONNECT) != -1) {
+                    data.push(json_data[i]);
+                }
+            }
+
+            var len = data.length;
+
             if(len > 200) {
                 json_data.splice(0, len-200);
             }
