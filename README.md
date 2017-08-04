@@ -10,13 +10,9 @@
 
 The **C Monitor** API monitors the network to which the computer is connected and estimates the bandwidth used by it.
 
-## Local Development
+## Development
 
 ### Installing Node.js
-
-#### Linux Installation
-
-Linux users can follow [this guide](https://github.com/Sampreet/ubuntu-install-guides/blob/master/language/nodejs.md) to install Node.js and NPM via NVM.
 
 #### Windows Installation
 
@@ -60,5 +56,8 @@ Once started, navigate to ```http://127.0.0.1:8000``` to open the required modul
 ├── test/               # scripts to test the application
 ├── views/              # the webpages and partial templates
 ├── .env                # environment variables file
-└── App.js              # master node script
+├── .gitignore          # local temporary files to ignore
+├── App.js              # master node script
+├── package.json        # npm package descriptions
+└── README.md           # description of the repository
 ```

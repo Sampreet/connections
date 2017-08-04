@@ -80,6 +80,7 @@
         var y_step_size = y_max_val / 8;
 
         var margin = 10;
+        var x_offset = 40;
         var row_size = 20;
         var column_size = 20;
 
@@ -89,27 +90,32 @@
         }
         var canvas = document.createElement('canvas');
         canvas.height = 640;
-        canvas.width = 840;
+        canvas.width = 880;
         canvas_div.appendChild(canvas);
 
         var context = canvas.getContext("2d");
         context.fillStyle = '#000000';
         
-        var x_scale = (canvas.width - row_size - 2 * margin) / x_sections;
+        var x_scale = (canvas.width - x_offset - row_size - 2 * margin) / x_sections;
         var y_scale = (canvas.height - column_size - 2 * margin) / (y_max_val - y_min_val);
     
         context.strokeStyle='#44ccaa';
         context.beginPath();
 
-        for (var i = 1; i <= x_sections; i++) {
+        for (var i = 0; i <= x_sections; i++) {
           var x = i * x_scale;
           if (i * 200 / x_sections > data_size) {
             break;
           }
-          console.log(x_data[i * 200 / x_sections - 1])
-          context.fillText((new Date(parseInt(x_data[i * 200 / x_sections - 1]))).toLocaleTimeString(), x - 3 * margin, canvas.height - margin);
-          context.moveTo(x, 0);
-          context.lineTo(x, canvas.height - column_size);
+          if (i == 0) {
+            context.fillText((new Date(parseInt(x_data[0]))).toLocaleTimeString(), x - 3 * margin + x_offset, canvas.height - margin);
+          }
+          else {
+            context.fillText((new Date(parseInt(x_data[i * 200 / x_sections - 1]))).toLocaleTimeString(), x - 3 * margin + x_offset, canvas.height - margin);
+          }
+          
+          context.moveTo(x + x_offset, 0);
+          context.lineTo(x + x_offset, canvas.height - column_size);
         }
 
         var count =  0;
@@ -133,10 +139,10 @@
 	      context.strokeStyle="#009933";
         context.beginPath();
         
-        context.moveTo(- column_size, y_data[0] * y_scale + (column_size + margin));
+        context.moveTo(- column_size + x_offset, y_data[0] * y_scale + (column_size + margin));
         for (var i = 1; i < y_data.length; i++) {
           var x = i * 4;
-          context.lineTo(x - column_size + margin / 4, y_data[i] * y_scale + column_size + margin);
+          context.lineTo(x - column_size + x_offset, y_data[i] * y_scale + column_size + margin);
         }
         context.stroke();
       }
