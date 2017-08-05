@@ -31,19 +31,59 @@ module.exports = {
       console.log(new Date().toISOString() + ': ' + '/GET /checkconnection');
       logger.logInfo(module_name, '/GET /checkconnection');
 
+      var now = new Date();
+      var requestedAt = now.getTime();
+
       var options = {
         url: google_search_url,
         headers: {}
       }
       // request call takes in the url and returns control to callback function with error, response and the html
       request(options, function(error, response, body) {
+
+        var connection = {};
+        connection.requestedAt = requestedAt;
+
+        if (error) {
+          connection.code = error.code;
+          connection.object = error;
+
+          switch (error.code) {
+            case 'ENOENT':
+              connection.mode = 'Disconnected';
+              logger.logInfo(module_name, connection.mode, connection.object);
+              console.log(new Date().toISOString() + ': INFO: ' + module_name + ': ' + connection.mode + ': ' + connection.code);
+              return res.send(connection);
+              break;
+
+            default:
+              connection.mode = 'No internet';
+              logger.logInfo(module_name, connection.mode, connection.object);
+              console.log(new Date().toISOString() + ': INFO: ' + module_name + ': ' + connection.mode + ': ' + connection.code);
+              return res.send(connection);
+              break;
+          }
+        }
+        else {
+          connection.mode = 'Connected';
+          connection.code = response.statusMessage;
+          connection.object = {
+            statusCode: response.statusCode,
+            statusMessage: response.statusMessage
+          };
+          logger.logInfo(module_name, 'Connected', response.statusCode);
+          console.log(new Date().toISOString() + ': INFO: ' + module_name + ': ' + connection.mode + ': ' + connection.code);
+          return res.send(connection);
+        }
+
+
         if (error) {
           if(error.code == 'ENOENT') {
-            var error_info = logger.logError(module_name, 'Disconnected', error.code, error.syscall);
+            var error_info = logger.logError(module_name, error.code, 'Disconnected', error.syscall);
             return res.send(error_info);
           } 
           else {
-            var error_info = logger.logError(module_name, 'No Internet', error.code, error.syscall);
+            var error_info = logger.logError(module_name, error.code, 'No Internet', error.syscall);
             return res.send(error_info);
           }
         }

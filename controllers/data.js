@@ -31,16 +31,16 @@ module.exports = {
         logger.logInfo(module_name, '/POST /saveconnectiondata', req.body);
         if(!req.body || req.body == '') {
             // display the error message template in case of empty query
-            var error_info = logger.logError(module_name, 'No Data', 'NOBODY', 'saveConnectionData');
+            var error_info = logger.logError(module_name, 'NOBODY', 'No Data', 'saveConnectionData');
             return res.send(error_info);
         }
         // initialize path of log files according to date
         var now = new Date(),
-            file_name = appendZeros(now.getFullYear()) + appendZeros(now.getMonth()+1) + appendZeros(now.getDate());
+            file_name = req.body.module + '_' + appendZeros(now.getFullYear()) + appendZeros(now.getMonth()+1) + appendZeros(now.getDate());
         var json_data = [];
         fs.readFile(data_file_path + '/' + file_name + '.json', 'utf8', function (err, data) {
             if (err != null && err.code != "ENOENT") {
-                var error_info = logger.logError(module_name, 'Could not Read File', err.code, err);
+                var error_info = logger.logError(module_name, err.code, 'Could not Read File', err);
                 return res.send(error_info);
             }
             if (data != null && data != '') {
@@ -48,60 +48,73 @@ module.exports = {
                     json_data = JSON.parse(data);
                 }
                 catch (err) {
-                    var error_info = logger.logError(module_name, 'Improper Data Format', err.code, err);
+                    var error_info = logger.logError(module_name, err.code, 'Improper Data Format', err);
                     return res.send(error_info);
                 }
             }
-            
-            exec('netsh wlan show interfaces | findstr /r "^....SSID"', function (err, stdout, stderr) {
-                if (!err && (stderr == null || stderr == "")) {
-                    if (stdout.length != 0 && stdout.indexOf(":") != -1) {
-                        var start = stdout.indexOf(":") + 2;
-                        var end = stdout.indexOf('\r');
-                        var ssid = stdout.slice(start, end);
-                        
-                        req.body.network = ssid;
-                        req.body.createdAt = now.getTime();
-                        json_data.push(req.body);
-                        fs.writeFile(data_file_path + '/' + file_name + '.json', JSON.stringify(json_data), 'utf8', function (err) {
-                            if (err) {
-                                var error_info = logger.logError(module_name, 'Could not Write to File', err.code, err);
-                                return res.send(error_info);      
-                            }
-                            var log_info = logger.logInfo(module_name, 'Last Saved Data', req.body);
-                            res.send(log_info);
-                        });
+            if (req.body.mode == 'Disconnected') {
+                setTimeout(function() {
+                    checkConnection();
+                }, parseInt(process.env.DELAY_BETWEEN_CHECKS));
+            }
+            else {
+                exec('netsh wlan show interfaces | findstr /r "^....SSID"', function (err, stdout, stderr) {
+                    if (!err && (stderr == null || stderr == "")) {
+                        if (stdout.length != 0 && stdout.indexOf(":") != -1) {
+                            var start = stdout.indexOf(":") + 2;
+                            var end = stdout.indexOf('\r');
+                            var ssid = stdout.slice(start, end);
+                            
+                            req.body.network = ssid;
+                            req.body.createdAt = now.getTime();
+                            json_data.push(req.body);
+                            fs.writeFile(data_file_path + '/' + file_name + '.json', JSON.stringify(json_data), 'utf8', function (err) {
+                                if (err) {
+                                    var error_info = logger.logError(module_name, err.code, 'Could not Write to File', err);
+                                    return res.send(error_info);      
+                                }
+                                var log_info = logger.logInfo(module_name, 'Last Saved Data', req.body);
+                                res.send(log_info);
+                            });
+                        }
+                        else {
+                            var error_info = logger.logError(module_name, 'ENOENT', 'SSID Empty', stdout);
+                            return res.send(error_info);
+                        }
                     }
                     else {
-                        var error_info = logger.logError(module_name, 'SSID Empty', 'ENOENT', stdout);
-                        return res.send(error_info);
+                        if (err){
+                            var error_info = logger.logError(module_name, err.code, 'SSID Exec Error', err);
+                            return res.send(error_info);
+                        }
+                        else {
+                            var error_info = logger.logError(module_name, 'STDERR', 'SSID Exec Error', stderr);
+                            return res.send(error_info);
+                        }
                     }
-                }
-                else {
-                    if (err){
-                        var error_info = logger.logError(module_name, 'SSID Exec Error', err.code, err);
-                        return res.send(error_info);
-                    }
-                    else {
-                        var error_info = logger.logError(module_name, 'SSID Exec Error', 'STDERR', stderr);
-                        return res.send(error_info);
-                    }
-                }
-            });
+                });
+            }
         });
     },
 
     loadLast200Data: function(req, res) {
-        console.log(new Date().toISOString() + ': ' + '/GET /loadconnectiondata');
-        logger.logInfo(module_name, '/GET /loadconnectiondata');
+        console.log(new Date().toISOString() + ': ' + '/POST /loadlast200data');
+        logger.logInfo(module_name, '/POST /loadLast200Data');
+
+        if (!req.body || req.body == '') {
+            return res.send({
+                message: "Improper /POST request",
+                status: 500
+            });
+        }
 
         // initialize path of log files according to date
         var now = new Date(),
-            file_name = appendZeros(now.getFullYear()) + appendZeros(now.getMonth()+1) + appendZeros(now.getDate());
-            
+            file_name = req.body.module + '_' + appendZeros(now.getFullYear()) + appendZeros(now.getMonth()+1) + appendZeros(now.getDate());
+        var json_data = [];            
         fs.readFile(data_file_path + '/' + file_name + '.json', 'utf8', function (err, data) {
             if (err != null && err.code != "ENOENT") {
-                var error_info = logger.logError(module_name, 'Could not Read File', err.code, err);
+                var error_info = logger.logError(module_name, err.code, 'Could not Read File', err);
                 return res.send(error_info);
             }
             if (data != null && data != '') {
@@ -109,7 +122,7 @@ module.exports = {
                     json_data = JSON.parse(data);
                 }
                 catch (err) {
-                    var error_info = logger.logError(module_name, 'Improper Data Format', err.code, err);
+                    var error_info = logger.logError(module_name, err.code, 'Improper Data Format', err);
                     return res.send(error_info);
                 }
             }

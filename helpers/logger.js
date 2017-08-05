@@ -16,7 +16,7 @@ var now = new Date(),
 function format(options) {
     return options.timestamp() + ': ' +
     options.level.toUpperCase() + ': ' +
-    (undefined != options.message ? options.message : '') +
+    (options.message != undefined ? options.message: '') +
     (options.meta != undefined && Object.keys(options.meta).length !== 0 ? '\t'+ JSON.stringify(options.meta) : '');
 }
 
@@ -88,18 +88,18 @@ module.exports = {
     * @param object {Object} (optional) Object to log extra error information
     * @return {Object} Object containing all the error information with status
     **/
-    logError: function(module_name, message, type, object) {
+    logError: function(module_name, type, message, object) {
         var res = {};
         res.app_name = process.env.APP_NAME,
         res.title = 'Result | ' + process.env.APP_NAME,
         res.heading = 'Result:',
         res.module_name = module_name;
-        res.message = message;
         res.type = type;
+        res.message = message;
         res.object = object;
         res.timestamp = new Date().toISOString();
         res.status = 500;
-        logger.error(module_name + ': ' + type + ': ' + message, object ? object : null);
+        logger.error(module_name + ': ' + type + ': ' + message + ': ', object ? object : null);
         return res;
     }
 }

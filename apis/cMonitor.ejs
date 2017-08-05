@@ -9,26 +9,19 @@
     var requestedAt = now.getTime();
     // get the connection status
     $.get('/checkconnection', function (res) {
-      var connection = {};
-      connection.requestedAt = requestedAt;
-      connection.status = res.status;
-      connection.mode = res.message;
 
       if(res.status == 200) {
-        connection.code = res.object;
-        document.getElementById('update_label').innerHTML = res.message;
-        document.getElementById('update_info').innerHTML = 'Status Code: ' + res.object;
+        document.getElementById('update_label').innerHTML = res.mode;
+        document.getElementById('update_info').innerHTML = 'Status Message: ' + res.object.statusMessage + '</br>Status Code: ' + res.object.statusCode;
       }
       else {
-
-        connection.code = res.type;
-        connection.caller = res.object;
-        document.getElementById('update_label').innerHTML = res.message;
-        document.getElementById('update_info').innerHTML = 'Error Code: ' + res.type + '</br>Caller: ' + res.object;
+        document.getElementById('update_label').innerHTML = res.mode;
+        document.getElementById('update_info').innerHTML = 'Error Code: ' + res.object.code + '</br>Caller: ' + res.object.syscall;
       }
 
-      if (connection.mode != 'Disconnected') {
-        $.post('/saveconnectiondata', connection, function(response) {
+      res.module = 'cmonitor';
+      if (res.mode != 'Disconnected') {
+        $.post('/saveconnectiondata', res, function(response) {
           if (response.status == 200) {
             document.getElementById('report').innerHTML = 'Last connection state saved at ' + (new Date(parseInt(response.object.createdAt))).toLocaleTimeString() + ' on ' +(new Date(parseInt(response.object.createdAt))).toLocaleDateString() + '. ';
           }
@@ -45,12 +38,12 @@
       // restart the service
       setTimeout(function() {
         this.checkConnection();
-      }, 10000);
+      }, 30000);
     });
   }
 
   function plotGraph() {
-    $.get('/loadlast200data', function (res) {
+    $.post('/loadlast200data', {module: 'cmonitor'}, function (res) {
       if(res.status == 200) {
 
         var x_data = [];
@@ -151,6 +144,6 @@
     // restart the service
     setTimeout(function() {
       this.plotGraph();
-    }, 10000);
+    }, 30000);
   }
 </script>

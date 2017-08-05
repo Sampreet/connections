@@ -102,7 +102,7 @@ app.get('/about', viewController.getAbout);
 app.get('/cmonitor', viewController.getCMonitor);
 
 app.post('/saveconnectiondata', dataController.saveConnectionData);
-app.get('/loadlast200data', dataController.loadLast200Data);
+app.post('/loadlast200data', dataController.loadLast200Data);
 
 app.get('/checkconnection', apiController.checkConnection);
 

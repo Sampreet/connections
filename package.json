@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node App.js",
-    "test": "node test/text.js"
+    "test": "node tests/text.js",
+    "cmonitor": "node scripts/cmonitor.js"
   },
   "author": "Sampreet Kalita",
   "license": "MIT",

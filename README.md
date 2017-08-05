@@ -1,6 +1,6 @@
 # Connections
 
-> Your personal connection analyzer for Windows users.
+> A personal connection analyzer for Windows.
 
 ## Overview of the Application
 
@@ -44,6 +44,10 @@ NETWORK_TO_MONITOR=<network_name>
 
 Replace ```<network_name>``` with the name of the network connection you intend to monitor.
 
+*Note - The ```NETWORK_TO_MONITOR``` variable is case-sensitive. Verify the exact name of the network before editing the file.*
+
+#### Using Browser
+
 To start the application, run:
 
 ```
@@ -51,6 +55,22 @@ npm start
 ```
 
 Once started, navigate to ```http://127.0.0.1:8000``` to open the required module in any browser of choice.
+
+#### Using Command Prompt
+
+To start a specific module of the application, run:
+
+```
+npm run <script_name>
+```
+
+Replace ```<script_name>``` by the name of the script for the required module from the table given below:
+
+| *Module Name* | *Script Name* |
+| ------------- |:-------------:| 
+| C Monitor     | cmonitor      | 
+
+*Note - The visualizations will not be available unless the application is run using the browser method.*
 
 
 ### Structure of the Repository
@@ -65,9 +85,10 @@ Once started, navigate to ```http://127.0.0.1:8000``` to open the required modul
 ├── logs/               # log files for all modules
 ├── public/             # publicly available files
 ├── screenshots/        # application screens for README
+├── scripts/            # standalone modules
 ├── services/           # service modules for notification
 ├── resources/          # configuration files
-├── test/               # scripts to test the application
+├── tests/               # scripts to test the application
 ├── views/              # the webpages and partial templates
 ├── .env                # environment variables file
 ├── .gitignore          # local temporary files to ignore
